@@ -4,13 +4,8 @@
 #include "raid.h"
 #include "nodes.h"
 
-#define ERR(msg) printf("ERR: %s\n", msg);
-#define HLP(msg) printf("\t%s\n", msg);
-#define NOTICE(msg) printf("%s\n", msg);
-#define SHOWPROMPT printf("cluster# ");
+extern FILE * yyin;
 
-
-#define ERR_CORRUPT ERR("Software corrupted, please reinstall.");
 int yydebug=1; 
 const char * USER = "root" ;
 
@@ -23,16 +18,30 @@ void yyerror(const char *str)
  
 int yywrap()
 {
-        return 1;
+	if (yyin != stdin)
+	{
+		yyin = stdin;
+        	return 0;
+	}
+
+	return 1;
 } 
   
-main()
+int main(int argc, char *argv[])
 {
 	node_init(&mylist);
-	printf("GeoBean Cluster Management Console (v9.0)\n");
-	printf("Type \"help\" for help.\n\n");
-	SHOWPROMPT;
-        yyparse();
+	NOTICE("GeoBean Cluster Management Console (v9.0)");
+	NOTICE("Type \"help\" for help.");
+	NOTICE("Loading nodes.ini ...");
+	FILE * nodes;
+	if ((nodes = fopen("./nodes.ini","rb")) != NULL)
+	{
+		yyin = nodes;
+		yyparse();
+		fclose(nodes);
+	}
+	
+	
 } 
 
 %}
@@ -46,6 +55,7 @@ main()
 %token GOTO
 %token CREATE
 %token DELETE
+%token NODE
 %token FILENAME
 %token LOADKEY 
 %token NODEDEFINE
@@ -93,30 +103,43 @@ help:   HELP SHOW {
 		NOTICE("GOTO IP \t request a shell for that node.");
 	};
 
+	| HELP NODE {
+		HLP("Use 'nodeNumber = IP' to define a node");
+		HLP("ex: node221 = 172.32.72.221");
+	};
+
 	| HELP {
                 NOTICE("HELP Commands:");
                 HLP("HELP SHOW \t show help for SHOW.");
                 HLP("HELP CREATE \t show help for CREATE.");
                 HLP("HELP GOTO \t show help for GOTO.");
+                HLP("HELP NODE \t show help for NODE.");
         };
 
 show: 	SHOW ALL {
-		NOTICE("-----------\t Summary for all nodes \t --------------");
-	  	char * cmd;
-                if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
-                {
-			struct node_list * tmp;
-			struct list_head *pos, *q;
-
-			list_for_each(pos, &mylist.list){
-				tmp = list_entry(pos, struct node_list, list);
-                        	remote_call(tmp->ip, USER,"",cmd);
-			}
-                        free(cmd);
-                }
+		if (list_empty(&mylist.list))
+		{
+			ERR("Nodes not defined");
+		}
 		else
 		{
-			ERR_CORRUPT;
+			NOTICE("-----------\t Summary for all nodes \t --------------");
+		  	char * cmd;
+        	        if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
+        	        {
+				struct node_list * tmp;
+				struct list_head *pos, *q;
+
+				list_for_each(pos, &mylist.list){
+					tmp = list_entry(pos, struct node_list, list);
+        	                	remote_call(tmp->ip, USER,"",cmd);
+				}
+        	                free(cmd);
+        	        }
+			else
+			{
+				ERR_CORRUPT;
+			}
 		}
 	};
 	| SHOW IP{
@@ -129,7 +152,7 @@ show: 	SHOW ALL {
                 }
                 else
                 {
-                        ERR("Software corrupted, please reinstall.");
+                        ERR_CORRUPT;
                 }
 	};
 	| SHOW {
@@ -146,8 +169,9 @@ goto:	GOTO IP {
 
 node_define: NODEDEFINE EQ IP {
 		node_add(&mylist, $1, $3);
-		node_list(&mylist);	
+		printf("%s --> %s \tOK!\n",$1,$3);
 	};
+
 	| NODEDEFINE error {
 		NOTICE("example: node01 = 172.32.72.1");
 		yyerrok;

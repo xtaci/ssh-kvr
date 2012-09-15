@@ -10,6 +10,7 @@ all		{	return ALL;		}
 goto		{ 	return GOTO;		}
 create		{ 	return CREATE;		}
 delete		{ 	return DELETE;		}
+node		{ 	return NODE;		}
 loadkey		{	return LOADKEY;		}
 node[0-9]+	{	yylval=strdup(yytext);return NODEDEFINE;	}
 
