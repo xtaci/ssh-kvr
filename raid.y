@@ -20,6 +20,7 @@ int yywrap()
 {
 	if (yyin != stdin)
 	{
+		NOTICE("nodes.ini loaded.");
 		yyin = stdin;
         	return 0;
 	}
@@ -40,7 +41,6 @@ int main(int argc, char *argv[])
 		yyparse();
 		fclose(nodes);
 	}
-	
 	
 } 
 
