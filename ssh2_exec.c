@@ -43,7 +43,7 @@ static int waitsocket(int socket_fd, LIBSSH2_SESSION *session)
     return rc;
 }
 
-int remote_call(const char * hostname, const char * username, const char * password, const char * command)
+int remote_call(const char * hostname, const char * username, const char * password, const char * command, FILE * output)
 {
     unsigned long hostaddr;
     int sock;
@@ -200,8 +200,7 @@ int remote_call(const char * hostname, const char * username, const char * passw
                 int i;
                 bytecount += rc;
                 for( i=0; i < rc; ++i )
-                    fputc( buffer[i], stderr);
-                fprintf(stderr, "\n");
+                    fputc( buffer[i], output);
             }
         }
         while( rc > 0 );

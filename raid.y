@@ -1,6 +1,7 @@
 %{
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "raid.h"
 #include "nodes.h"
 
@@ -8,6 +9,7 @@ extern FILE * yyin;
 
 int yydebug=1; 
 const char * USER = "root" ;
+const char * PASSWD= "" ;
 
 struct node_list mylist;
  
@@ -125,15 +127,20 @@ show: 	SHOW ALL {
 		{
 			NOTICE("-----------\t Summary for all nodes \t --------------");
 		  	char * cmd;
+
         	        if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
         	        {
 				struct node_list * tmp;
 				struct list_head *pos, *q;
+				FILE * ob = get_ob();
 
 				list_for_each(pos, &mylist.list){
 					tmp = list_entry(pos, struct node_list, list);
-        	                	remote_call(tmp->ip, USER,"",cmd);
+        	                	remote_call(tmp->ip, USER,PASSWD,cmd, ob);
 				}
+
+				fflush(ob);
+				call_local_script("format_node_sum.sh");
         	                free(cmd);
         	        }
 			else
@@ -147,8 +154,11 @@ show: 	SHOW ALL {
 		char * cmd;
                 if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
                 {
-                        remote_call($2,USER,"",cmd);
+			FILE * ob = get_ob();
+                        remote_call($2,USER,PASSWD,cmd, ob);
                         free(cmd);
+			fflush(ob);
+			call_local_script("format_node_sum.sh");
                 }
                 else
                 {

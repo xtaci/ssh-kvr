@@ -67,6 +67,7 @@
 
 #include <stdio.h>
 #include <string.h>
+#include <unistd.h>
 #include "raid.h"
 #include "nodes.h"
 
@@ -74,6 +75,7 @@ extern FILE * yyin;
 
 int yydebug=1; 
 const char * USER = "root" ;
+const char * PASSWD= "" ;
 
 struct node_list mylist;
  
@@ -112,7 +114,7 @@ int main(int argc, char *argv[])
 
 
 /* Line 336 of yacc.c  */
-#line 116 "y.tab.c"
+#line 118 "y.tab.c"
 
 # ifndef YY_NULL
 #  if defined __cplusplus && 201103L <= __cplusplus
@@ -236,7 +238,7 @@ int yyparse ();
 /* Copy the second part of user declarations.  */
 
 /* Line 353 of yacc.c  */
-#line 240 "y.tab.c"
+#line 242 "y.tab.c"
 
 #ifdef short
 # undef short
@@ -532,9 +534,9 @@ static const yytype_int8 yyrhs[] =
 /* YYRLINE[YYN] -- source line where rule number YYN was defined.  */
 static const yytype_uint8 yyrline[] =
 {
-       0,    79,    79,    80,    83,    84,    85,    86,    87,    88,
-      91,    97,   101,   106,   111,   119,   145,   158,   162,   165,
-     170,   175
+       0,    81,    81,    82,    85,    86,    87,    88,    89,    90,
+      93,    99,   103,   108,   113,   121,   152,   168,   172,   175,
+     180,   185
 };
 #endif
 
@@ -1465,19 +1467,19 @@ yyreduce:
     {
         case 3:
 /* Line 1787 of yacc.c  */
-#line 80 "raid.y"
+#line 82 "raid.y"
     { SHOWPROMPT; }
     break;
 
   case 9:
 /* Line 1787 of yacc.c  */
-#line 88 "raid.y"
+#line 90 "raid.y"
     { yyerrok; }
     break;
 
   case 10:
 /* Line 1787 of yacc.c  */
-#line 91 "raid.y"
+#line 93 "raid.y"
     {
 		NOTICE("SHOW commands:");
 		HLP("SHOW ALL \t show summary for all nodes.");
@@ -1487,7 +1489,7 @@ yyreduce:
 
   case 11:
 /* Line 1787 of yacc.c  */
-#line 97 "raid.y"
+#line 99 "raid.y"
     {
 		NOTICE("CREATE commands:");
 	}
@@ -1495,7 +1497,7 @@ yyreduce:
 
   case 12:
 /* Line 1787 of yacc.c  */
-#line 101 "raid.y"
+#line 103 "raid.y"
     {
 		NOTICE("GOTO commands:");
 		NOTICE("GOTO IP \t request a shell for that node.");
@@ -1504,7 +1506,7 @@ yyreduce:
 
   case 13:
 /* Line 1787 of yacc.c  */
-#line 106 "raid.y"
+#line 108 "raid.y"
     {
 		HLP("Use 'nodeNumber = IP' to define a node");
 		HLP("ex: node221 = 172.32.72.221");
@@ -1513,7 +1515,7 @@ yyreduce:
 
   case 14:
 /* Line 1787 of yacc.c  */
-#line 111 "raid.y"
+#line 113 "raid.y"
     {
                 NOTICE("HELP Commands:");
                 HLP("HELP SHOW \t show help for SHOW.");
@@ -1525,7 +1527,7 @@ yyreduce:
 
   case 15:
 /* Line 1787 of yacc.c  */
-#line 119 "raid.y"
+#line 121 "raid.y"
     {
 		if (list_empty(&mylist.list))
 		{
@@ -1535,15 +1537,20 @@ yyreduce:
 		{
 			NOTICE("-----------\t Summary for all nodes \t --------------");
 		  	char * cmd;
+
         	        if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
         	        {
 				struct node_list * tmp;
 				struct list_head *pos, *q;
+				FILE * ob = get_ob();
 
 				list_for_each(pos, &mylist.list){
 					tmp = list_entry(pos, struct node_list, list);
-        	                	remote_call(tmp->ip, USER,"",cmd);
+        	                	remote_call(tmp->ip, USER,PASSWD,cmd, ob);
 				}
+
+				fflush(ob);
+				call_local_script("format_node_sum.sh");
         	                free(cmd);
         	        }
 			else
@@ -1556,14 +1563,17 @@ yyreduce:
 
   case 16:
 /* Line 1787 of yacc.c  */
-#line 145 "raid.y"
+#line 152 "raid.y"
     {
 		printf("Sumary for node -- %s\n", (yyvsp[(2) - (2)]));
 		char * cmd;
                 if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
                 {
-                        remote_call((yyvsp[(2) - (2)]),USER,"",cmd);
+			FILE * ob = get_ob();
+                        remote_call((yyvsp[(2) - (2)]),USER,PASSWD,cmd, ob);
                         free(cmd);
+			fflush(ob);
+			call_local_script("format_node_sum.sh");
                 }
                 else
                 {
@@ -1574,7 +1584,7 @@ yyreduce:
 
   case 17:
 /* Line 1787 of yacc.c  */
-#line 158 "raid.y"
+#line 168 "raid.y"
     {
 		NOTICE("Show what ?");
 	}
@@ -1582,7 +1592,7 @@ yyreduce:
 
   case 18:
 /* Line 1787 of yacc.c  */
-#line 162 "raid.y"
+#line 172 "raid.y"
     {
 		printf("Connected to %s\n", (yyvsp[(2) - (2)]));
 	}
@@ -1590,7 +1600,7 @@ yyreduce:
 
   case 19:
 /* Line 1787 of yacc.c  */
-#line 165 "raid.y"
+#line 175 "raid.y"
     {
 		NOTICE("Goto Where ?");
 	}
@@ -1598,7 +1608,7 @@ yyreduce:
 
   case 20:
 /* Line 1787 of yacc.c  */
-#line 170 "raid.y"
+#line 180 "raid.y"
     {
 		node_add(&mylist, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 		printf("%s --> %s \tOK!\n",(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));
@@ -1607,7 +1617,7 @@ yyreduce:
 
   case 21:
 /* Line 1787 of yacc.c  */
-#line 175 "raid.y"
+#line 185 "raid.y"
     {
 		NOTICE("example: node01 = 172.32.72.1");
 		yyerrok;
@@ -1616,7 +1626,7 @@ yyreduce:
 
 
 /* Line 1787 of yacc.c  */
-#line 1620 "y.tab.c"
+#line 1630 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1846,5 +1856,5 @@ yyreturn:
 
 
 /* Line 2048 of yacc.c  */
-#line 180 "raid.y"
+#line 190 "raid.y"
 

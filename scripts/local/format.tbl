@@ -1,0 +1,5 @@
+.TS
+allbox,tab( );
+c c c c
+l l l l.
+NODE DSKTOTAL DSKUSED DSKFREE
