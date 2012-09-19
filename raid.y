@@ -136,6 +136,7 @@ show: 	SHOW ALL {
 
 				list_for_each(pos, &mylist.list){
 					tmp = list_entry(pos, struct node_list, list);
+					printf("Gathering information for %s\n", tmp->ip);
         	                	remote_call(tmp->ip, USER,PASSWD,cmd, ob);
 				}
 
