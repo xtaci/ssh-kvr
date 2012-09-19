@@ -125,14 +125,13 @@ show: 	SHOW ALL {
 		}
 		else
 		{
-			NOTICE("-----------\t Summary for all nodes \t --------------");
 		  	char * cmd;
 
         	        if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
         	        {
 				struct node_list * tmp;
 				struct list_head *pos, *q;
-				FILE * ob = get_ob();
+				int ob = get_ob();
 
 				list_for_each(pos, &mylist.list){
 					tmp = list_entry(pos, struct node_list, list);
@@ -140,7 +139,6 @@ show: 	SHOW ALL {
         	                	remote_call(tmp->ip, USER,PASSWD,cmd, ob);
 				}
 
-				fflush(ob);
 				call_local_script("format_node_sum.sh");
         	                free(cmd);
         	        }
@@ -155,10 +153,9 @@ show: 	SHOW ALL {
 		char * cmd;
                 if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
                 {
-			FILE * ob = get_ob();
+			int ob = get_ob();
                         remote_call($2,USER,PASSWD,cmd, ob);
                         free(cmd);
-			fflush(ob);
 			call_local_script("format_node_sum.sh");
                 }
                 else

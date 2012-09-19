@@ -535,8 +535,8 @@ static const yytype_int8 yyrhs[] =
 static const yytype_uint8 yyrline[] =
 {
        0,    81,    81,    82,    85,    86,    87,    88,    89,    90,
-      93,    99,   103,   108,   113,   121,   153,   169,   173,   176,
-     181,   186
+      93,    99,   103,   108,   113,   121,   151,   166,   170,   173,
+     178,   183
 };
 #endif
 
@@ -1535,14 +1535,13 @@ yyreduce:
 		}
 		else
 		{
-			NOTICE("-----------\t Summary for all nodes \t --------------");
 		  	char * cmd;
 
         	        if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
         	        {
 				struct node_list * tmp;
 				struct list_head *pos, *q;
-				FILE * ob = get_ob();
+				int ob = get_ob();
 
 				list_for_each(pos, &mylist.list){
 					tmp = list_entry(pos, struct node_list, list);
@@ -1550,7 +1549,6 @@ yyreduce:
         	                	remote_call(tmp->ip, USER,PASSWD,cmd, ob);
 				}
 
-				fflush(ob);
 				call_local_script("format_node_sum.sh");
         	                free(cmd);
         	        }
@@ -1564,16 +1562,15 @@ yyreduce:
 
   case 16:
 /* Line 1787 of yacc.c  */
-#line 153 "raid.y"
+#line 151 "raid.y"
     {
 		printf("Sumary for node -- %s\n", (yyvsp[(2) - (2)]));
 		char * cmd;
                 if (ae_load_file_to_memory(__SCRIPT_NODE_SUM__, &cmd) > 0)
                 {
-			FILE * ob = get_ob();
+			int ob = get_ob();
                         remote_call((yyvsp[(2) - (2)]),USER,PASSWD,cmd, ob);
                         free(cmd);
-			fflush(ob);
 			call_local_script("format_node_sum.sh");
                 }
                 else
@@ -1585,7 +1582,7 @@ yyreduce:
 
   case 17:
 /* Line 1787 of yacc.c  */
-#line 169 "raid.y"
+#line 166 "raid.y"
     {
 		NOTICE("Show what ?");
 	}
@@ -1593,7 +1590,7 @@ yyreduce:
 
   case 18:
 /* Line 1787 of yacc.c  */
-#line 173 "raid.y"
+#line 170 "raid.y"
     {
 		printf("Connected to %s\n", (yyvsp[(2) - (2)]));
 	}
@@ -1601,7 +1598,7 @@ yyreduce:
 
   case 19:
 /* Line 1787 of yacc.c  */
-#line 176 "raid.y"
+#line 173 "raid.y"
     {
 		NOTICE("Goto Where ?");
 	}
@@ -1609,7 +1606,7 @@ yyreduce:
 
   case 20:
 /* Line 1787 of yacc.c  */
-#line 181 "raid.y"
+#line 178 "raid.y"
     {
 		node_add(&mylist, (yyvsp[(1) - (3)]), (yyvsp[(3) - (3)]));
 		printf("%s --> %s \tOK!\n",(yyvsp[(1) - (3)]),(yyvsp[(3) - (3)]));
@@ -1618,7 +1615,7 @@ yyreduce:
 
   case 21:
 /* Line 1787 of yacc.c  */
-#line 186 "raid.y"
+#line 183 "raid.y"
     {
 		NOTICE("example: node01 = 172.32.72.1");
 		yyerrok;
@@ -1627,7 +1624,7 @@ yyreduce:
 
 
 /* Line 1787 of yacc.c  */
-#line 1631 "y.tab.c"
+#line 1628 "y.tab.c"
       default: break;
     }
   /* User semantic actions sometimes alter yychar, and that requires
@@ -1857,5 +1854,5 @@ yyreturn:
 
 
 /* Line 2048 of yacc.c  */
-#line 191 "raid.y"
+#line 188 "raid.y"
 

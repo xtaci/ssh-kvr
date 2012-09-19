@@ -2,6 +2,9 @@
 #define __SCRIPT_H__
 
 #include <unistd.h>
+#include <sys/stat.h>
+#include <fcntl.h>
+
 #define SCRIPT_PATH_LOCAL "./scripts/local/"
 #define SCRIPT_OB "./.ob.tmp"
 
@@ -20,20 +23,17 @@ inline int call_local_script(char * script_name)
 	
 }
 
-inline FILE * get_ob()
+inline int * get_ob()
 {
-	static FILE * ob = NULL;
+	static int ob = 0;
 
-	if(!ob)
+	if (ob == 0)
 	{
-		ob = fopen(SCRIPT_OB,"wb");
+		ob = open(SCRIPT_OB, O_RDWR|O_SYNC|O_TRUNC);
 	}
 
-	if (ob)
-	{
-		ftruncate(fileno(ob),0);
-	}
-	
+	ftruncate(ob, 0);
+		
 	return ob;
 }
 
