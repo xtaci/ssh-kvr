@@ -1,3 +1,8 @@
+#ifndef __NODES_H__
+#define __NODES_H__
+
+#include "list.h"
+
 struct node_list {
 	char * name;
 	char * ip;
@@ -30,3 +35,5 @@ static inline int node_list(struct node_list * mylist)
 		printf("%s --> %s\n", tmp->name, tmp->ip);
 	}
 }
+
+#endif //

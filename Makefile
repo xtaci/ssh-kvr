@@ -4,28 +4,25 @@ LEX=flex
 YACC=yacc
 CFLAGS=-c -Wall
 
-all: gmon
+all: ssh-kvr
 
-gmon: y.tab.o lex.yy.o ssh2_exec.o loadfile.o
-	$(CC) lex.yy.o y.tab.o ssh2_exec.o loadfile.o -o gmon -lssh2
+ssh-kvr: y.tab.o lex.yy.o ssh2_exec.o
+	$(CC) $^ -o $@ -lssh2
 
 lex.yy.o: lex.yy.c
-	$(CC) -c lex.yy.c
+	$(CC) -c $<
 
 y.tab.o: y.tab.c
-	$(CC) -c y.tab.c
+	$(CC) -c $<
 
-lex.yy.c: raid.l
-	$(LEX) -i raid.l
+lex.yy.c: lex.l
+	$(LEX) -i $<
 
-y.tab.c: raid.y
-	$(YACC) -d raid.y 
+y.tab.c: syntax.y
+	$(YACC) -d $<
 
 ssh2_exec.o: ssh2_exec.c
-	$(CC) -c ssh2_exec.c
-
-loadfile.o: loadfile.c
-	$(CC) -c loadfile.c
+	$(CC) -c $<
 
 clean:
-	rm -rf *o gmon lex.yy.c y.tab.c y.tab.h
+	rm -rf *o ssh-kvr lex.yy.c y.tab.c y.tab.h
